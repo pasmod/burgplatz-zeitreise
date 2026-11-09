@@ -1,0 +1,5 @@
+Babylon.js 9.35.0
+babylonjs-loaders 9.35.0
+Official packages: https://www.npmjs.com/package/babylonjs/v/9.35.0
+https://www.npmjs.com/package/babylonjs-loaders/v/9.35.0
+License: Apache-2.0

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#182b2b"><title>Burgplatz · Durch die Zeit</title>
+<meta name="description" content="Ein begehbarer 3D-Spaziergang über den Düsseldorfer Burgplatz. Entdecke 1869, 1908 und die Gegenwart mit historischen Bildquellen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23182b2b'/%3E%3Cpath d='M20 52V23h24v29M17 23h30L32 9zM26 35h12M26 43h12' fill='none' stroke='%23e5cd98' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=5">
+</head>
+<body>
+<main id="experience" aria-label="Virtueller Burgplatz">
+ <div id="viewport" aria-label="Begehbare dreidimensionale Rekonstruktion des Burgplatzes" aria-describedby="walk-hint" tabindex="0"></div>
+ <div class="vignette"></div>
+ <header class="topbar">
+  <a class="brand" href="./" aria-label="Burgplatz Startseite"><svg viewBox="0 0 36 46" aria-hidden="true"><path d="M8 42V16h20v26M5 16h26L18 3zM8 23h20M8 33h20M14 42v-6h8v6M14 28h2m4 0h2"/></svg><span>BURG<span class="brand-light">PLATZ</span><small>DÜSSELDORF · DURCH DIE ZEIT</small></span></a>
+  <div class="location"><span class="live-dot"></span>51° 13′ N &nbsp; 6° 46′ O <span class="location-rule"></span><span id="mode-label">Freier Rundgang</span></div>
+  <nav class="tools" aria-label="Ansicht und Informationen"><button id="clean-view" class="icon-btn" aria-label="Oberfläche ausblenden" aria-pressed="false" title="Ungestörte Ansicht">◉</button><button id="sound" class="icon-btn" aria-label="Atmosphäre einschalten" title="Atmosphäre einschalten">♪</button><button id="light" class="icon-btn" aria-label="Abendlicht einschalten" title="Tageszeit wechseln">☀</button><button id="fullscreen" class="icon-btn" aria-label="Vollbild" title="Vollbild">⛶</button><button id="help" class="text-btn">So geht’s <span>?</span></button></nav>
+ </header>
+ <section class="scene-title" aria-live="polite"><div class="eyebrow"><span class="short-line"></span> HISTORISCHE STADTSIMULATION</div><h1 id="scene-year">Düsseldorf, 1908.</h1><p>Begehen. Umsehen. Die Zeit wechseln.</p><button id="walk" class="explore-button">Frei erkunden <span>→</span></button><button id="meet" class="meet-button" disabled>Passanten begegnen ↗</button><div id="npc-status" class="presence">Passanten werden geladen …</div></section>
+ <aside id="encounter-panel" class="encounter-panel" hidden><span class="eyebrow">MENSCHEN IM STADTBILD</span><h2>Eine kurze Begegnung.</h2><p id="encounter-note">Fiktive Person. Historische Garderobe angenähert.</p><div><button id="encounter-next">Anderes Gesicht →</button><button id="encounter-close">Zurück zum Platz</button></div></aside>
+ <div class="play-hud" id="play-hud" hidden><span id="play-year">1908</span> · WASD gehen · Maus oder Pfeiltasten umsehen · Esc oder Klick zurück</div><div id="labels" aria-label="Sehenswürdigkeiten"></div>
+ <aside class="story-card" id="story-card">
+  <div class="card-top"><span class="eyebrow" id="era-kicker">DIE STADT UM 1908</span><button id="toggle-story" aria-label="Infokarte einklappen">−</button></div>
+  <h2 id="era-title">Der Platz öffnet sich.</h2><p id="era-copy"></p>
+  <button id="archive-btn" class="archive-button"><img src="assets/1908.jpg" alt="Historische Postkarte des Burgplatzes von 1908" id="archive-thumb"><span>Ein Blick ins Original<small id="archive-sub">Historische Postkarte · 1908</small></span><span class="arrow">↗</span></button>
+  <div class="evidence"><span class="evidence-dot"></span> <span id="evidence-label">Interpretative 3D-Rekonstruktion</span> <button id="method-btn" aria-label="Mehr zur historischen Genauigkeit">ⓘ</button></div>
+ </aside>
+ <div class="map-wrap"><canvas id="map" width="360" height="300" aria-label="Orientierungskarte mit aktueller Position"></canvas><div class="map-caption"><span>BURGPLATZ</span><button id="home" title="Zum Ausgangspunkt" aria-label="Zum Ausgangspunkt">⌖</button></div></div>
+ <div class="walk-hint" id="walk-hint"><span><kbd>WASD</kbd> gehen</span><span><kbd>← ↑ ↓ →</kbd> oder ziehen zum Umsehen</span><span><kbd>+ −</kbd> oder Mausrad für Zoom</span></div>
+ <div class="tour-status" id="tour-status" hidden><span id="stop-count">01 / 04</span><span id="stop-title">Der Schlossturm</span><button id="prev-stop" aria-label="Vorherige Station">←</button><button id="next-stop" aria-label="Nächste Station">→</button></div>
+ <footer class="bottom-bar">
+  <div class="time-label"><span class="eyebrow">ZEITREISE</span><span>Wähle deine Zeit</span></div>
+  <div class="timeline" role="group" aria-label="Zeitebene auswählen"><button data-era="1869"><span class="year">1869</span><span class="epoch">Vor dem Schlossbrand</span><i></i></button><span class="timeline-line"></span><button data-era="1908" class="active" aria-pressed="true"><span class="year">1908</span><span class="epoch">Aufbruch am Rhein</span><i></i></button><span class="timeline-line"></span><button data-era="heute"><span class="year">Heute</span><span class="epoch">Zurück am Fluss</span><i></i></button></div>
+  <button id="tour" class="primary-button"><span id="tour-icon">▷</span><span id="tour-text">Rundgang starten</span></button>
+ </footer>
+ <button id="sources-btn" class="source-link">Quellen & Rekonstruktion ↗</button>
+ <div class="navigation-controls" role="group" aria-label="Bewegung und Blick">
+  <div class="move-pad" role="group" aria-label="Gehen. Zum Weitergehen gedrückt halten.">
+   <button data-move="forward" aria-label="Vorwärts gehen" title="Vorwärts gehen · halten">↑</button>
+   <div>
+    <button data-move="left" aria-label="Nach links gehen" title="Nach links gehen · halten">←</button>
+    <button data-move="back" aria-label="Rückwärts gehen" title="Rückwärts gehen · halten">↓</button>
+    <button data-move="right" aria-label="Nach rechts gehen" title="Nach rechts gehen · halten">→</button>
+   </div>
+  </div>
+  <div class="view-controls" role="group" aria-label="Blick und Zoom">
+   <button id="zoom-out" aria-label="Herauszoomen" title="Herauszoomen (−)">−</button>
+   <button id="level-view" aria-label="Blick gerade ausrichten und Zoom zurücksetzen" title="Blick gerade ausrichten (R)">⊙</button>
+   <button id="zoom-in" aria-label="Hineinzoomen" title="Hineinzoomen (+)">+</button>
+  </div>
+ </div>
+ <div class="loading" id="loading"><svg viewBox="0 0 36 46"><path d="M8 42V16h20v26M5 16h26L18 3zM8 23h20M8 33h20"/></svg><h2>Ein Ort kehrt zurück.</h2><p>Der Burgplatz entsteht …</p><div class="loading-line"></div></div>
+ <div class="toast" id="toast" role="status"></div>
+</main>
+<dialog id="modal"><div class="modal-top"><span class="eyebrow" id="modal-kicker">BURGPLATZ · ARCHIV</span><button id="close-modal" aria-label="Schließen">✕</button></div><div id="modal-content"></div></dialog>
+<script type="importmap">{"imports":{"three":"./assets/three.module.js"}}</script>
+<script type="module" src="app.js?v=6"></script>
+<script>
+function showBootFailure(){const el=document.querySelector('#loading');if(!el)return;el.classList.remove('done');el.innerHTML='<h2>Die Simulation konnte nicht starten.</h2><p>Bitte in einem aktuellen Browser mit aktivierter 3D-Beschleunigung öffnen.</p><button class="primary-button" onclick="location.reload()">Erneut laden</button>';}
+window.addEventListener('error',showBootFailure);
+window.addEventListener('unhandledrejection',showBootFailure);
+</script>
+</body></html>
