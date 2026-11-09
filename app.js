@@ -201,7 +201,7 @@ const stops=()=>[
  {title:'Derselbe Ort. Eine andere Zeit.',pos:[24,1.72,23],target:[-13,9,-19],copy:'Wechsle jetzt unten die Zeitebene. Der Standort bleibt bei freier Erkundung erhalten, solange er nicht in einem historischen Gebäude liegt. So wird sichtbar, was verschwunden ist und was den Burgplatz bis heute zusammenhält.'}
 ];
 function visitStop(i){clearNavigationInput();setFieldOfView(DEFAULT_FOV);stopIndex=(i+4)%4;const s=stops()[stopIndex];moveTo(s.pos,s.target);$('#stop-count').textContent=String(stopIndex+1).padStart(2,'0')+' / 04';$('#stop-title').textContent=s.title;$('#era-kicker').textContent=`STATION ${stopIndex+1} · ${era==='heute'?'HEUTE':era}`;$('#era-title').textContent=s.title;$('#era-copy').textContent=s.copy;$('#story-card').classList.remove('collapsed');$('#toggle-story').textContent='−';$('#toggle-story').setAttribute('aria-label','Infokarte einklappen');}
-function startTour(){endEncounter();touring=!touring;$('#tour-text').textContent=touring?'Rundgang beenden':'Rundgang starten';$('#tour-icon').textContent=touring?'■':'▷';$('#tour-status').hidden=!touring;$('#walk-hint').hidden=touring;$('#mode-label').textContent=touring?'Geführter Rundgang':'Freier Rundgang';$('.scene-title').classList.toggle('dim',touring);if(touring){visitStop(0);$('#story-card').classList.remove('collapsed');$('#toggle-story').textContent='−';$('#toggle-story').setAttribute('aria-label','Infokarte einklappen');}else{updateEraCard();tween=null;$('#story-card').classList.add('collapsed');$('#toggle-story').textContent='+';$('#toggle-story').setAttribute('aria-label','Infokarte ausklappen');}}
+function startTour(withAuto=false){endEncounter();touring=!touring;$('#tour-text').textContent=touring?'Rundgang beenden':'Rundgang starten';$('#tour-icon').textContent=touring?'■':'▷';$('#tour-status').hidden=!touring;$('#experience').classList.toggle('touring',touring);setAutoTour(touring&&withAuto===true,true);$('#mode-label').textContent=touring?'Geführter Rundgang':'Freier Rundgang';$('.scene-title').classList.toggle('dim',touring);if(touring){visitStop(0);$('#story-card').classList.remove('collapsed');$('#toggle-story').textContent='−';$('#toggle-story').setAttribute('aria-label','Infokarte einklappen');}else{updateEraCard();tween=null;$('#story-card').classList.add('collapsed');$('#toggle-story').textContent='+';$('#toggle-story').setAttribute('aria-label','Infokarte ausklappen');}}
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),3300);}
 function showModal(title,content){if(document.pointerLockElement)document.exitPointerLock();$('#modal-kicker').textContent=title;$('#modal-content').innerHTML=content;$('#modal').showModal();clearNavigationInput();}
 function archive(){const e=ERA[era];showModal('BURGPLATZ · BILDARCHIV',`<h2>${e.sub}</h2><p>Die historische Vorlage bleibt sichtbar. Vergleiche Silhouette, Gebäude und Platzleben mit der 3D-Ansicht.</p><figure><a href="assets/${e.image}.jpg" target="_blank"><img src="assets/${e.image}.jpg" alt="${e.sub}: Burgplatz Düsseldorf"></a><figcaption>${e.caption} <a href="${e.url}" target="_blank" rel="noopener">Bildnachweis ↗</a>${era==='heute'?' · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">Lizenz</a>':''}</figcaption></figure>${era==='1908'?'<p>Die Postkarte zeigt links das Galeriegebäude, in der Mitte den Turm, dahinter das Düsselschlösschen und rechts die Häuserzeile. Markt und Straßenbahn sind belegt. Farben und genaue Maße im Modell sind Annäherungen.</p>':''}`);}
@@ -209,13 +209,11 @@ function sources(){showModal('HINTER DER ZEITREISE',`<h2>Quellen. Spuren. Spielr
 function help() {
  showModal('DEIN SPAZIERGANG', `<h2>Gehen und umsehen</h2>
  <div class="help-keys">
-  <b>Tastatur</b><span>Mit WASD gehen, mit den Pfeiltasten nach links, rechts, oben und unten schauen. Umschalt beschleunigt das Gehen.</span>
-  <b>Maus oder Touch</b><span>Zum Umsehen direkt im Bild ziehen. Die Richtungstasten neben der Karte anklicken oder zum Weitergehen gedrückt halten.</span>
-  <b>Zoom</b><span>Mit Mausrad, + und − oder den Zoomtasten neben der Karte den Bildausschnitt ändern.</span>
-  <b>Blick gerade · R</b><span>Mit ⊙ oder R den Blick auf den Horizont richten und den Zoom zurücksetzen. Du bleibst am selben Ort.</span>
-  <b>Startpunkt · H</b><span>Mit ⌖ auf der Karte oder H zum Ausgangspunkt zurückkehren.</span>
-  <b>1869 · 1908 · Heute</b><span>Über die Zeitleiste wechselst du die Epoche. Im geführten Rundgang führen die Pfeile oberhalb der Zeitleiste zur nächsten Station.</span>
-  <b>Mausblick</b><span>Optionaler Spielmodus. Die Maus steuert den Blick und WASD die Bewegung. Mit einem Klick oder Esc kehrst du zur Oberfläche zurück.</span>
+  <b>Nur Maus</b><span>Im Bild ziehen dreht und neigt den Blick. Das Mausrad zoomt. Ein Doppelklick auf den Boden führt dich dorthin. Die Tasten links neben der Karte gehen (↑ ← ↓ →) und drehen (↺ ↻), gedrückt halten zum Weitermachen. ⊙ richtet den Blick gerade, ⌖ auf der Karte bringt dich zum Startpunkt.</span>
+  <b>Nur Tastatur</b><span>W A S D gehen, Umschalt beschleunigt. ← → oder Q E drehen, ↑ ↓ neigen den Blick. + und − zoomen. R richtet den Blick gerade, H führt zum Startpunkt. 1, 2 und 3 wählen 1869, 1908 und Heute. Mit Tab erreichst du alle Schaltflächen.</span>
+  <b>Rundgang</b><span>„Rundgang starten“ oder T führt zu vier Stationen. ‹ › oder die Pfeiltasten ← → wechseln zur vorherigen oder nächsten Station. ▶ „Automatisch“ oder die Leertaste lässt den Rundgang von selbst weiterlaufen. Sobald du selbst gehst oder dich umsiehst, hält die Automatik an, und du kannst frei umhergehen.</span>
+  <b>Hinweis · ?</b><span>Die Steuerungszeile über der Zeitleiste blendest du mit ✕ oder ? aus und wieder ein.</span>
+  <b>Mausblick</b><span>Optionaler Spielmodus für Maus und Tastatur zusammen. Die Maus steuert den Blick und WASD die Bewegung. Mit einem Klick oder Esc kehrst du zur Oberfläche zurück.</span>
   <b>♪ / ☀ / ⛶</b><span>Wasserrauschen, Abendlicht und Vollbild.</span>
  </div>
  <div class="help-actions">
@@ -232,7 +230,7 @@ function changeLight(){evening=!evening;game?.setEvening(evening);$('#light').te
 async function populateCrowd(){const generation=npcGeneration;try{const {createNPCSystem}=await import('./npc-system.js?v=6');const system=await createNPCSystem(game,{era,isWalkable:(x,z)=>!blocked(x,z,.9),onProgress:message=>{if(generation===npcGeneration&&$('#loading p'))$('#loading p').textContent=message;}});if(generation!==npcGeneration){system.dispose();return;}npcSystem=system;initialContentReady=true;const status=$('#npc-status');if(status)status.textContent=`${system.count??0} 3D-Figuren · ${system.distinctFaces} Gesichter`;$('#meet').disabled=!system.count;return system;}catch(error){console.error('NPC setup failed',error);const status=$('#npc-status');if(generation===npcGeneration){initialContentReady=true;if(status)status.textContent='Figuren nicht geladen';}}}
 let audioCtx,gain,audioOn=false;async function sound(){try{if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();const len=audioCtx.sampleRate*4,buf=audioCtx.createBuffer(1,len,audioCtx.sampleRate),data=buf.getChannelData(0);let brown=0;for(let i=0;i<len;i++){brown=(brown+(.02*(Math.random()*2-1)))/1.02;data[i]=brown*3.5;}const src=audioCtx.createBufferSource();src.buffer=buf;src.loop=true;const filter=audioCtx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=1200;gain=audioCtx.createGain();gain.gain.value=0;src.connect(filter).connect(gain).connect(audioCtx.destination);src.start();}await audioCtx.resume();audioOn=!audioOn;gain.gain.setTargetAtTime(audioOn?.35:0,audioCtx.currentTime,.6);$('#sound').classList.toggle('on',audioOn);$('#sound').setAttribute('aria-label',audioOn?'Atmosphäre ausschalten':'Atmosphäre einschalten');toast(audioOn?'Wasserrauschen eingeschaltet':'Atmosphäre ausgeschaltet');}catch{toast('Ton ist in diesem Browser nicht verfügbar.');}}
 
-$$('[data-era]').forEach(b=>b.addEventListener('click',()=>setEra(b.dataset.era)));$('#tour').onclick=startTour;$('#next-stop').onclick=()=>visitStop(stopIndex+1);$('#prev-stop').onclick=()=>visitStop(stopIndex-1);$('#archive-btn').onclick=archive;$('#sources-btn').onclick=sources;$('#method-btn').onclick=sources;$('#help').onclick=help;$('#close-modal').onclick=()=>$('#modal').close();$('#modal').addEventListener('click',e=>{if(e.target===$('#modal')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});$('#home').onclick=()=>resetCamera();$('#light').onclick=changeLight;$('#sound').onclick=sound;$('#fullscreen').onclick=async()=>{try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen();}catch{toast('Vollbild ist hier nicht verfügbar. Öffne die Tour in einem eigenen Browserfenster.');}};$('#toggle-story').onclick=()=>{const c=$('#story-card').classList.toggle('collapsed');$('#toggle-story').textContent=c?'+':'−';$('#toggle-story').setAttribute('aria-label',c?'Infokarte ausklappen':'Infokarte einklappen');};
+$$('[data-era]').forEach(b=>b.addEventListener('click',()=>setEra(b.dataset.era)));$('#tour').onclick=()=>startTour();$('#next-stop').onclick=()=>stepStop(1);$('#prev-stop').onclick=()=>stepStop(-1);$('#auto-tour').onclick=toggleAutoTour;$('#archive-btn').onclick=archive;$('#sources-btn').onclick=sources;$('#method-btn').onclick=sources;$('#help').onclick=help;$('#close-modal').onclick=()=>$('#modal').close();$('#modal').addEventListener('click',e=>{if(e.target===$('#modal')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});$('#home').onclick=()=>{userTookOver();resetCamera();};$('#light').onclick=changeLight;$('#sound').onclick=sound;$('#fullscreen').onclick=async()=>{try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen();}catch{toast('Vollbild ist hier nicht verfügbar. Öffne die Tour in einem eigenen Browserfenster.');}};$('#toggle-story').onclick=()=>{const c=$('#story-card').classList.toggle('collapsed');$('#toggle-story').textContent=c?'+':'−';$('#toggle-story').setAttribute('aria-label',c?'Infokarte ausklappen':'Infokarte einklappen');};
 function endEncounter(){if(!encounter)return;camera.position.copy(encounter.position);camera.quaternion.copy(encounter.quaternion);setFieldOfView(encounter.fov);encounter=null;npcSystem?.setPaused(false);$('#encounter-panel').hidden=true;$('#experience').classList.remove('encounter');clearNavigationInput();}
 function meetPerson(){if(!npcSystem?.count)return;if(!encounter){encounter={position:camera.position.clone(),quaternion:camera.quaternion.clone(),fov:camera.fov,index:-1};setFieldOfView(48);npcSystem.setPaused(true);tween=null;clearNavigationInput();}const people=npcSystem.getCharacters(),unique=people.filter((p,i)=>people.findIndex(q=>q.model===p.model)===i);encounter.index=(encounter.index+1)%unique.length;const person=unique[encounter.index],p=person.position;let angle=person.rotationY;for(let i=0;i<12;i++){const a=person.rotationY+i*Math.PI/6;if(!blocked(p[0]+Math.sin(a)*1.5,p[2]+Math.cos(a)*1.5,.25)){angle=a;break;}}camera.position.set(p[0]+Math.sin(angle)*1.5,1.62,p[2]+Math.cos(angle)*1.5);camera.lookAt(p[0],person.height*.86,p[2]);$('#encounter-note').textContent=`Porträt ${encounter.index+1} von ${unique.length} · Fiktive Person${era==='heute'?'':', Garderobe angenähert'}.`;$('#encounter-panel').hidden=false;$('#experience').classList.add('encounter');}
 $('#meet').onclick=meetPerson;$('#encounter-next').onclick=meetPerson;$('#encounter-close').onclick=endEncounter;
@@ -240,8 +238,9 @@ const vp = $('#viewport');
 const pressedKeys = new Set();
 const movePointers = new Map();
 const movementKeys = {w:'forward', s:'back', a:'left', d:'right'};
-const lookKeys = ['arrowleft', 'arrowright', 'arrowup', 'arrowdown'];
+const lookKeys = ['arrowleft', 'arrowright', 'arrowup', 'arrowdown', 'q', 'e'];
 let lookDrag = null;
+let autoTour = false, autoDue = 0, autoSpan = 1;
 
 function clearNavigationInput() {
  pressedKeys.clear();
@@ -259,12 +258,77 @@ function canNavigate() {
  return !encounter && !$('#modal').open;
 }
 
+// Guided tour: step with ‹ › or ← →, or let it run by itself. Any own movement
+// pauses the automatic mode, so free walking is possible at every station.
+function setAutoTour(on, quiet = false) {
+ autoTour = Boolean(on && touring);
+ autoDue = 0;
+ $('#auto-bar').style.transform = 'scaleX(0)';
+ $('#auto-tour').setAttribute('aria-pressed', autoTour);
+ $('#auto-tour').classList.toggle('on', autoTour);
+ $('#auto-icon').textContent = autoTour ? '❚❚' : '▶';
+ $('#auto-text').textContent = autoTour ? 'Anhalten' : 'Automatisch';
+ $('#auto-tour').title = autoTour ? 'Automatik anhalten (Leertaste)' : 'Automatisch weiter (Leertaste)';
+ if (!quiet) toast(autoTour ? 'Der Rundgang läuft jetzt von selbst weiter.' : 'Automatik angehalten.');
+}
+
+function toggleAutoTour() {
+ if (!touring) startTour(true);
+ else setAutoTour(!autoTour);
+}
+
+function stepStop(direction) {
+ if (!touring) return;
+ endEncounter();
+ autoDue = 0;
+ visitStop(stopIndex + direction);
+}
+
+function userTookOver() {
+ if (!autoTour) return;
+ setAutoTour(false, true);
+ toast('Automatik angehalten. Du gehst frei. Leertaste oder ▶ setzt den Rundgang fort.');
+}
+
+function updateAutoTour(now) {
+ if (!touring || !autoTour) return;
+ if (tween || !canNavigate()) {
+  autoDue = 0;
+  $('#auto-bar').style.transform = 'scaleX(0)';
+  return;
+ }
+ if (!autoDue) {
+  autoSpan = THREE.MathUtils.clamp(stops()[stopIndex].copy.length * 55, 8000, 16000);
+  autoDue = now + autoSpan;
+ }
+ const left = autoDue - now;
+ $('#auto-bar').style.transform = `scaleX(${THREE.MathUtils.clamp(1 - left / autoSpan, 0, 1)})`;
+ if (left <= 0) {
+  autoDue = 0;
+  visitStop(stopIndex + 1);
+ }
+}
+
+function readHintHidden() {
+ try { return localStorage.getItem('burgplatz-hint') === 'hidden'; } catch { return false; }
+}
+
+function setHintHidden(hidden) {
+ $('#walk-hint').hidden = hidden;
+ $('#show-hint').hidden = !hidden;
+ $('#experience').classList.toggle('hint-hidden', hidden);
+ try { localStorage.setItem('burgplatz-hint', hidden ? 'hidden' : 'shown'); } catch {}
+}
+
 function zoomView(amount) {
- if (canNavigate()) setFieldOfView(camera.fov + amount);
+ if (!canNavigate()) return;
+ userTookOver();
+ setFieldOfView(camera.fov + amount);
 }
 
 function levelView() {
  if (!canNavigate()) return;
+ userTookOver();
  tween = null;
  camera.rotation.x = 0;
  setFieldOfView(DEFAULT_FOV);
@@ -272,6 +336,7 @@ function levelView() {
 
 function turnView(yaw, pitch) {
  if (!yaw && !pitch) return;
+ userTookOver();
  tween = null;
  const angle = camera.rotation.y + yaw;
  camera.rotation.y = Math.atan2(Math.sin(angle), Math.cos(angle));
@@ -281,6 +346,7 @@ function turnView(yaw, pitch) {
 function walk(forward, sideways, dt, pace = 3.2) {
  const length = Math.hypot(forward, sideways);
  if (!length) return;
+ userTookOver();
  tween = null;
  const yaw = camera.rotation.y;
  const distance = pace * dt / length;
@@ -294,11 +360,13 @@ function walk(forward, sideways, dt, pace = 3.2) {
 function updateManualNavigation(dt) {
  if (!canNavigate() || (!pressedKeys.size && !movePointers.size)) return;
  const key = name => Number(pressedKeys.has(name));
+ const moves = new Set(movePointers.values());
+ const turnLeft = Math.max(key('arrowleft'), key('q'), Number(moves.has('turnLeft')));
+ const turnRight = Math.max(key('arrowright'), key('e'), Number(moves.has('turnRight')));
  turnView(
-  (key('arrowleft') - key('arrowright')) * 1.55 * dt,
+  (turnLeft - turnRight) * 1.55 * dt,
   (key('arrowup') - key('arrowdown')) * 1.15 * dt
  );
- const moves = new Set(movePointers.values());
  for (const [keyName, direction] of Object.entries(movementKeys)) {
   if (pressedKeys.has(keyName)) moves.add(direction);
  }
@@ -309,8 +377,45 @@ function updateManualNavigation(dt) {
 
 $('#walk').onclick=()=>{
  vp.focus({preventScroll:true});
- toast('WASD oder Steuerkreuz zum Gehen · Pfeiltasten oder Ziehen zum Umsehen');
+ if (touring) startTour();
+ toast('Ziehen oder Pfeiltasten zum Umsehen · Doppelklick, Tasten links oder WASD zum Gehen');
 };
+
+// Mouse only: a double click on the ground walks there, stopping in front of walls.
+const groundRay = new THREE.Raycaster();
+const groundPlane = new THREE.Plane(new V(0, 1, 0), 0);
+const groundHit = new V();
+function walkToScreenPoint(clientX, clientY) {
+ if (!canNavigate() || document.pointerLockElement) return;
+ const r = vp.getBoundingClientRect();
+ groundRay.setFromCamera({x: (clientX - r.left) / r.width * 2 - 1, y: -(clientY - r.top) / r.height * 2 + 1}, camera);
+ const hit = groundRay.ray.intersectPlane(groundPlane, groundHit);
+ const from = new V(camera.position.x, 0, camera.position.z);
+ if (!hit || hit.distanceTo(from) < .6) {
+  toast('Doppelklick auf den Boden, um dorthin zu gehen.');
+  return;
+ }
+ const dir = hit.clone().sub(from).setY(0);
+ const total = Math.min(dir.length(), 80);
+ dir.normalize();
+ let reach = 0;
+ for (let d = .5; d <= total; d += .5) {
+  if (blocked(from.x + dir.x * d, from.z + dir.z * d, .6)) break;
+  reach = d;
+ }
+ if (reach < .6) {
+  toast('Hier ist der Weg versperrt. Doppelklick auf eine freie Stelle am Boden.');
+  return;
+ }
+ userTookOver();
+ const x = from.x + dir.x * reach, z = from.z + dir.z * reach, y = groundHeight(x, z) + 1.72;
+ const lift = Math.tan(THREE.MathUtils.clamp(camera.rotation.x, -.6, .6)) * 20;
+ moveTo([x, y, z], [x + dir.x * 20, y + lift, z + dir.z * 20]);
+}
+vp.addEventListener('dblclick', event=>{
+ event.preventDefault();
+ walkToScreenPoint(event.clientX, event.clientY);
+});
 $('#zoom-in').onclick=()=>zoomView(-5);
 $('#zoom-out').onclick=()=>zoomView(5);
 $('#level-view').onclick=levelView;
@@ -377,11 +482,38 @@ addEventListener('keydown', event=>{
   event.target?.closest?.('input, textarea, select, [contenteditable]')) return;
  const key = event.key.toLowerCase();
  if (key === 'escape') endEncounter();
+ if (key === '?') {
+  event.preventDefault();
+  if (!event.repeat) setHintHidden(!$('#walk-hint').hidden);
+  return;
+ }
  if (key === 'h' && !event.repeat) {
+  userTookOver();
   resetCamera();
   return;
  }
  if (!canNavigate()) return;
+ const onControl = event.target?.closest?.('button, a, summary');
+ if (key === 't') {
+  event.preventDefault();
+  if (!event.repeat) startTour();
+  return;
+ }
+ if ((key === ' ' && !onControl) || key === 'p') {
+  event.preventDefault();
+  if (!event.repeat) toggleAutoTour();
+  return;
+ }
+ if (touring && (key === 'arrowleft' || key === 'arrowright')) {
+  event.preventDefault();
+  if (!event.repeat) stepStop(key === 'arrowright' ? 1 : -1);
+  return;
+ }
+ if (['1', '2', '3'].includes(key)) {
+  event.preventDefault();
+  if (!event.repeat) setEra(['1869', '1908', 'heute'][Number(key) - 1]);
+  return;
+ }
  if (key === 'r') levelView();
  else if (key === '+' || key === '=') zoomView(-4);
  else if (key === '-' || key === '−') zoomView(4);
@@ -406,6 +538,10 @@ for (const button of $$('[data-move]')) {
  const direction = button.dataset.move;
  const nudge = ()=>{
   if (!canNavigate()) return;
+  if (direction === 'turnLeft' || direction === 'turnRight') {
+   turnView(direction === 'turnLeft' ? .26 : -.26, 0);
+   return;
+  }
   walk(Number(direction === 'forward') - Number(direction === 'back'),
    Number(direction === 'right') - Number(direction === 'left'), .075);
  };
@@ -424,13 +560,21 @@ for (const button of $$('[data-move]')) {
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();game?.resize(innerWidth,innerHeight);});
 $('#story-card').classList.add('collapsed');$('#toggle-story').textContent='+';$('#toggle-story').setAttribute('aria-label','Infokarte ausklappen');
 $('#clean-view').onclick=()=>{const clean=$('#experience').classList.toggle('clean-view');$('#clean-view').setAttribute('aria-pressed',clean);$('#clean-view').textContent=clean?'↩':'◉';};
+$('#hide-hint').onclick=()=>setHintHidden(true);
+$('#show-hint').onclick=()=>setHintHidden(false);
+setHintHidden(readHintHidden());
+// After a mouse click on a control, hand the keyboard back to the scene, so the
+// Space bar starts the automatic tour instead of pressing the same button again.
+$('#experience').addEventListener('click', event=>{
+ if (event.detail > 0 && event.target.closest('button') && !$('#modal').open) vp.focus({preventScroll:true});
+});
 game=await createGameEngine({canvas:gameCanvas,camera,assetsBase:'./assets/',onProgress:message=>{if($('#loading p'))$('#loading p').textContent=message;}});
 resetCamera(false);updateEraCard();buildWorld();
 
-let frame=0;function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;updateManualNavigation(dt);if(tween){let t=Math.min((performance.now()-tween.start)/tween.duration,1),e=t*t*(3-2*t),d=e*tween.total,i=1;while(i<tween.lengths.length-1&&tween.lengths[i]<d)i++;const segment=tween.lengths[i]-tween.lengths[i-1],u=segment>0?(d-tween.lengths[i-1])/segment:1;camera.position.lerpVectors(tween.points[i-1],tween.points[i],u);camera.rotation.y=THREE.MathUtils.lerp(tween.yaw0,tween.yaw1,e);camera.rotation.x=THREE.MathUtils.lerp(tween.pitch0,tween.pitch1,e);if(t===1)tween=null;}
+let frame=0;function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;updateManualNavigation(dt);updateAutoTour(performance.now());if(tween){let t=Math.min((performance.now()-tween.start)/tween.duration,1),e=t*t*(3-2*t),d=e*tween.total,i=1;while(i<tween.lengths.length-1&&tween.lengths[i]<d)i++;const segment=tween.lengths[i]-tween.lengths[i-1],u=segment>0?(d-tween.lengths[i-1])/segment:1;camera.position.lerpVectors(tween.points[i-1],tween.points[i],u);camera.rotation.y=THREE.MathUtils.lerp(tween.yaw0,tween.yaw1,e);camera.rotation.x=THREE.MathUtils.lerp(tween.pitch0,tween.pitch1,e);if(t===1)tween=null;}
 
  npcSystem?.update(dt,time,camera);if(frame++%3===0){updateLabels();drawMap();}game.render(dt,time,camera);
  if(frame>3&&initialContentReady&&$('#loading')&&!$('#loading').classList.contains('done')){$('#loading').classList.add('done');setTimeout(()=>$('#loading')?.remove(),900);}}
 animate();
 // Read-only diagnostics for verification; no user data is collected.
-window.burgplatz={getState:()=>({era,touring,stopIndex,evening,audioOn,position:camera.position.toArray(),engine:'Babylon.js',npcs:npcSystem?.count??0,colliders:colliders.length}),setEra};
+window.burgplatz={getState:()=>({era,touring,stopIndex,autoTour,evening,audioOn,position:camera.position.toArray(),yaw:camera.rotation.y,pitch:camera.rotation.x,fov:camera.fov,moving:Boolean(tween),engine:'Babylon.js',npcs:npcSystem?.count??0,colliders:colliders.length}),setEra};

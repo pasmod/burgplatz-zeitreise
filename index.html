@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#182b2b"><title>Burgplatz · Durch die Zeit</title>
 <meta name="description" content="Ein begehbarer 3D-Spaziergang über den Düsseldorfer Burgplatz. Entdecke 1869, 1908 und die Gegenwart mit historischen Bildquellen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23182b2b'/%3E%3Cpath d='M20 52V23h24v29M17 23h30L32 9zM26 35h12M26 43h12' fill='none' stroke='%23e5cd98' stroke-width='3'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <main id="experience" aria-label="Virtueller Burgplatz">
@@ -26,8 +26,13 @@
   <div class="evidence"><span class="evidence-dot"></span> <span id="evidence-label">Interpretative 3D-Rekonstruktion</span> <button id="method-btn" aria-label="Mehr zur historischen Genauigkeit">ⓘ</button></div>
  </aside>
  <div class="map-wrap"><canvas id="map" width="360" height="300" aria-label="Orientierungskarte mit aktueller Position"></canvas><div class="map-caption"><span>BURGPLATZ</span><button id="home" title="Zum Ausgangspunkt" aria-label="Zum Ausgangspunkt">⌖</button></div></div>
- <div class="walk-hint" id="walk-hint"><span><kbd>WASD</kbd> gehen</span><span><kbd>← ↑ ↓ →</kbd> oder ziehen zum Umsehen</span><span><kbd>+ −</kbd> oder Mausrad für Zoom</span></div>
- <div class="tour-status" id="tour-status" hidden><span id="stop-count">01 / 04</span><span id="stop-title">Der Schlossturm</span><button id="prev-stop" aria-label="Vorherige Station">←</button><button id="next-stop" aria-label="Nächste Station">→</button></div>
+ <div class="walk-hint" id="walk-hint" role="note" aria-label="Steuerung">
+  <div class="hint-row"><b>Maus</b><span class="hint-items"><span>Ziehen: umsehen und neigen</span><span>Rad: zoomen</span><span>Doppelklick auf den Boden: hingehen</span><span class="hint-free">Tasten links: gehen und drehen</span><span class="hint-tour">‹ ›: Station · ▶: automatisch</span></span></div>
+  <div class="hint-row"><b>Tastatur</b><span class="hint-items"><span><kbd>W A S D</kbd> gehen</span><span class="hint-free"><kbd>← →</kbd> drehen</span><span class="hint-tour"><kbd>← →</kbd> Station</span><span class="hint-tour"><kbd>Q E</kbd> drehen</span><span><kbd>↑ ↓</kbd> neigen</span><span><kbd>+ −</kbd> zoomen</span><span><kbd>R</kbd> gerade</span><span><kbd>Leertaste</kbd> automatisch</span><span class="hint-free"><kbd>T</kbd> Rundgang</span><span><kbd>1 2 3</kbd> Zeit</span><span><kbd>?</kbd> ausblenden</span></span></div>
+  <button id="hide-hint" class="hint-close" aria-label="Steuerungshinweis ausblenden (Taste ?)" title="Ausblenden (?)">✕</button>
+ </div>
+ <button id="show-hint" class="hint-show" hidden aria-label="Steuerungshinweis einblenden (Taste ?)">Steuerung ▴</button>
+ <div class="tour-status" id="tour-status" hidden><button id="prev-stop" aria-label="Vorherige Station (Pfeil links)" title="Vorherige Station (←)">‹</button><span id="stop-count">01 / 04</span><span id="stop-title">Der Schlossturm</span><button id="next-stop" aria-label="Nächste Station (Pfeil rechts)" title="Nächste Station (→)">›</button><button id="auto-tour" class="auto-tour" aria-pressed="false" title="Automatisch weiter (Leertaste)"><span id="auto-icon">▶</span> <span id="auto-text">Automatisch</span></button><span class="auto-progress" aria-hidden="true"><i id="auto-bar"></i></span></div>
  <footer class="bottom-bar">
   <div class="time-label"><span class="eyebrow">ZEITREISE</span><span>Wähle deine Zeit</span></div>
   <div class="timeline" role="group" aria-label="Zeitebene auswählen"><button data-era="1869"><span class="year">1869</span><span class="epoch">Vor dem Schlossbrand</span><i></i></button><span class="timeline-line"></span><button data-era="1908" class="active" aria-pressed="true"><span class="year">1908</span><span class="epoch">Aufbruch am Rhein</span><i></i></button><span class="timeline-line"></span><button data-era="heute"><span class="year">Heute</span><span class="epoch">Zurück am Fluss</span><i></i></button></div>
@@ -35,12 +40,16 @@
  </footer>
  <button id="sources-btn" class="source-link">Quellen & Rekonstruktion ↗</button>
  <div class="navigation-controls" role="group" aria-label="Bewegung und Blick">
-  <div class="move-pad" role="group" aria-label="Gehen. Zum Weitergehen gedrückt halten.">
-   <button data-move="forward" aria-label="Vorwärts gehen" title="Vorwärts gehen · halten">↑</button>
+  <div class="move-pad" role="group" aria-label="Gehen und drehen. Zum Weitermachen gedrückt halten.">
    <div>
-    <button data-move="left" aria-label="Nach links gehen" title="Nach links gehen · halten">←</button>
-    <button data-move="back" aria-label="Rückwärts gehen" title="Rückwärts gehen · halten">↓</button>
-    <button data-move="right" aria-label="Nach rechts gehen" title="Nach rechts gehen · halten">→</button>
+    <button data-move="turnLeft" aria-label="Nach links drehen" title="Nach links drehen · halten (Q)">↺</button>
+    <button data-move="forward" aria-label="Vorwärts gehen" title="Vorwärts gehen · halten (W)">↑</button>
+    <button data-move="turnRight" aria-label="Nach rechts drehen" title="Nach rechts drehen · halten (E)">↻</button>
+   </div>
+   <div>
+    <button data-move="left" aria-label="Nach links gehen" title="Nach links gehen · halten (A)">←</button>
+    <button data-move="back" aria-label="Rückwärts gehen" title="Rückwärts gehen · halten (S)">↓</button>
+    <button data-move="right" aria-label="Nach rechts gehen" title="Nach rechts gehen · halten (D)">→</button>
    </div>
   </div>
   <div class="view-controls" role="group" aria-label="Blick und Zoom">
@@ -54,7 +63,7 @@
 </main>
 <dialog id="modal"><div class="modal-top"><span class="eyebrow" id="modal-kicker">BURGPLATZ · ARCHIV</span><button id="close-modal" aria-label="Schließen">✕</button></div><div id="modal-content"></div></dialog>
 <script type="importmap">{"imports":{"three":"./assets/three.module.js"}}</script>
-<script type="module" src="app.js?v=6"></script>
+<script type="module" src="app.js?v=7"></script>
 <script>
 function showBootFailure(){const el=document.querySelector('#loading');if(!el)return;el.classList.remove('done');el.innerHTML='<h2>Die Simulation konnte nicht starten.</h2><p>Bitte in einem aktuellen Browser mit aktivierter 3D-Beschleunigung öffnen.</p><button class="primary-button" onclick="location.reload()">Erneut laden</button>';}
 window.addEventListener('error',showBootFailure);
